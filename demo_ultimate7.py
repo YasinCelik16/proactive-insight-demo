@@ -6,6 +6,35 @@ import plotly.graph_objects as go
 import time
 
 # -----------------------------------------------------------------------------
+# 🔐 SIMPLE PIN PROTECTION
+# -----------------------------------------------------------------------------
+PIN_CODE = "611"
+
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+if not st.session_state["authenticated"]:
+    st.set_page_config(page_title="Access Required", page_icon="🔒")
+    
+    st.markdown("## 🔒 Protected Access")
+    st.markdown("Please enter your PIN to access the dashboard.")
+
+    pin_input = st.text_input("Enter PIN", type="password")
+
+    if st.button("Unlock"):
+        if pin_input == PIN_CODE:
+            st.session_state["authenticated"] = True
+            st.success("Access granted.")
+            st.rerun()
+        else:
+            st.error("Incorrect PIN.")
+
+    st.stop()  # verhindert, dass der Rest der App geladen wird
+
+
+
+
+# -----------------------------------------------------------------------------
 # 1. CONFIGURATION & CSS (High-End Enterprise)
 # -----------------------------------------------------------------------------
 st.set_page_config(
@@ -178,10 +207,10 @@ with st.sidebar:
     st.markdown("---")
     
     with st.expander("👤 Session Info", expanded=True):
-        st.write("**Head of Analytics:** Heiko Waibel")
+        st.write("**Team Lead AI:** Maya Schwaninger")
         st.write("**Data Analyst:** Yasin Celik")
-        st.write("**Client:** BMW Group")
-        st.caption("Date: 26.01.2026")
+        st.write("**Client:** EF-611")
+        st.caption("Date: 05.03.2026")
 
     st.markdown("---")
     st.success("🟢 MDR API: **Online**")
