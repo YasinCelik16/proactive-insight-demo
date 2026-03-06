@@ -4,103 +4,132 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import time
+import json
 
 # -----------------------------------------------------------------------------
 # 🔐 SIMPLE PIN PROTECTION
 # -----------------------------------------------------------------------------
-PIN_CODE = "611"
+PIN_CODE = "0000"
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
 if not st.session_state["authenticated"]:
     st.set_page_config(page_title="Access Required", page_icon="🔒")
-    
     st.markdown("## 🔒 Protected Access")
     st.markdown("Please enter your PIN to access the dashboard.")
-
     pin_input = st.text_input("Enter PIN", type="password")
-
     if st.button("Unlock"):
         if pin_input == PIN_CODE:
             st.session_state["authenticated"] = True
-            st.success("Access granted.")
             st.rerun()
         else:
             st.error("Incorrect PIN.")
-
-    st.stop()  # verhindert, dass der Rest der App geladen wird
-
-
-
+    st.stop()
 
 # -----------------------------------------------------------------------------
-# 1. CONFIGURATION & CSS (High-End Enterprise)
+# 1. CONFIGURATION & HIGH-END CSS (Glassmorphism & Neon)
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Cognizant Mobility | Proactive Insight Hub",
+    page_title="Cognizant Mobility | Predictive Intelligence",
     page_icon="🔵",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling
 st.markdown("""
     <style>
-    /* Global Dark Theme Tuning */
+    /* Deep Space Background */
     .stApp {
-        background-color: #0e1117;
+        background: radial-gradient(circle at 50% 0%, #1a1f2e 0%, #0b0f19 100%);
+        color: #e2e8f0;
+        font-family: 'Inter', sans-serif;
     }
     
-    /* Metric Boxes */
+    /* Hide the default Streamlit Header to prevent overlap with sticky nav */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+    
+    /* Robust Sticky Navigation Hack - NOW TARGETING ONLY THE BUTTON ROW */
+    div[data-testid="stHorizontalBlock"]:has(.sticky-nav-marker) {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 0px !important;
+        z-index: 999999 !important;
+        background-color: rgba(11, 15, 25, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-bottom: 1px solid rgba(0, 242, 254, 0.2) !important;
+        padding-top: 15px !important;
+        padding-bottom: 15px !important;
+        margin-top: 0px !important;
+    }
+    
+    /* Premium Glassmorphism Metrics */
     div[data-testid="stMetric"] {
-        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px 0 rgba(0, 195, 255, 0.15);
+        border-color: rgba(0, 195, 255, 0.3);
     }
     div[data-testid="stMetricValue"] {
         color: #ffffff !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
+        font-size: 2.2rem !important;
+        letter-spacing: -1px;
     }
 
-    /* Buttons: Enterprise Grade */
+    /* Enterprise Buttons */
     div.stButton > button {
-        background: linear-gradient(90deg, #1f2329 0%, #2d323b 100%);
-        color: #e0e0e0;
-        border: 1px solid #444;
-        border-radius: 6px;
-        height: 48px;
+        background: linear-gradient(135deg, #2b3240 0%, #1a1f2e 100%);
+        color: #00f2fe;
+        border: 1px solid rgba(0, 242, 254, 0.3);
+        border-radius: 8px;
+        height: 50px;
         font-weight: 600;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     div.stButton > button:hover {
-        border-color: #0672CB;
-        color: #0672CB;
-        box-shadow: 0 0 10px rgba(6, 114, 203, 0.2);
+        border-color: #00f2fe;
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        transform: scale(1.02);
+        color: #ffffff;
     }
     
-    /* Primary Action Button */
-    div.stButton > button.primary-btn {
-        background: #0672CB;
-        border: none;
-        color: white;
+    /* Improved Terminal Output Style */
+    .terminal-output {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #050505;
+        color: #00ff41;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #00ff41;
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        font-size: 1.05em;
+        line-height: 1.5;
+        white-space: pre-wrap;
     }
 
-    /* Table Header Styling */
-    thead tr th {
-        background-color: #1a1d24 !important;
-        color: #0672CB !important;
-    }
-    
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        background-color: #11141a;
-        border-right: 1px solid #222;
+    /* Headers */
+    h1, h2, h3 {
+        background: -webkit-linear-gradient(45deg, #ffffff, #8892b0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -109,508 +138,479 @@ st.markdown("""
 # 2. STATE & DATA GENERATOR
 # -----------------------------------------------------------------------------
 if 'step' not in st.session_state: st.session_state['step'] = 0
-if 'model' not in st.session_state: st.session_state['model'] = "BMW X1 (U11)"
+if 'model' not in st.session_state: st.session_state['model'] = "Model Series Alpha (Compact)"
+if 'terminal_log' not in st.session_state: st.session_state['terminal_log'] = ""
 
-# Helper function to reset analysis data
 def reset_analysis_state():
-    keys = ['ai_done', 'scan_done', 'risk_pool']
-    for k in keys:
-        if k in st.session_state:
-            del st.session_state[k]
+    for k in ['ai_done', 'scan_done', 'risk_pool', 'terminal_log']:
+        if k in st.session_state: del st.session_state[k]
 
 steps = [
-    {"id": 0, "title": "Global Fleet View", "desc": "Live Monitoring & Cluster Detection"},
-    {"id": 1, "title": "Intake Analysis (Warranty)", "desc": "Analysis of Incoming Warranty Cases"},
-    {"id": 2, "title": "AI Pattern Recognition", "desc": "Root Cause Finding via Deep Learning"},
-    {"id": 3, "title": "Predictive Fleet Scan", "desc": "Proactive Identification of At-Risk Vehicles"},
-    {"id": 4, "title": "Deep Dive & Action", "desc": "Vehicle Diagnosis and Actions"},
-    {"id": 5, "title": "Management Summary", "desc": "Business Impact & ROI"}
+    {"id": 0, "title": "Global Asset Command", "desc": "Real-time Telemetry & Cluster Analytics"},
+    {"id": 1, "title": "Intake Forensics", "desc": "Deep Dive into Reported Incidents & Cost Impact"},
+    {"id": 2, "title": "AI Model Deep Dive", "desc": "Statistical Interpretation & Feature Importance"},
+    {"id": 3, "title": "Predictive Fleet Scan", "desc": "Multidimensional Risk Scaling"},
+    {"id": 4, "title": "Digital Twin & ERP Setup", "desc": "System Architecture & API Integration"},
+    {"id": 5, "title": "Value Proposition", "desc": "ROI & Business Impact Summary"}
 ]
 
 @st.cache_data
 def get_fleet_data():
-    """Generates data with exact specs for Warranty and SILENT RISKS."""
+    """Generates enterprise-grade dummy data including geospatial coordinates."""
     np.random.seed(42)
     n = 35000 
+    regions = ["North America", "Europe", "Asia-Pacific", "South America", "Middle East"]
     
-    regions_list = ["North (Hamburg)", "East (Berlin)", "West (Ruhr)", "South (Munich)", "Central (Frankfurt)"]
+    # Base coordinates for the map
+    coords = {
+        "North America": (39.8, -98.5),
+        "Europe": (51.1, 10.4),
+        "Asia-Pacific": (34.0, 100.0),
+        "South America": (-14.2, -51.9),
+        "Middle East": (23.8, 45.0)
+    }
     
-    # Base Data
     df = pd.DataFrame({
-        "VIN": [f"WBA{x:07d}" for x in range(n)],
-        "Region": np.random.choice(regions_list, n, p=[0.15, 0.2, 0.25, 0.25, 0.15]),
-        "Model": np.random.choice(["BMW X1 (U11)", "BMW iX (I20)", "BMW 5er (G60)"], n, p=[0.33, 0.33, 0.34]), 
+        "VIN": [f"GEN-{x:07d}" for x in range(n)],
+        "Region": np.random.choice(regions, n, p=[0.25, 0.30, 0.25, 0.10, 0.10]),
+        "Model": np.random.choice(["Model Series Alpha (Compact)", "Model Series Beta (EV)", "Model Series Gamma (Sedan)"], n, p=[0.33, 0.33, 0.34]), 
         "Prod_Date": pd.date_range(start="2023-01-01", periods=n, freq="8min").date,
-        "Mileage": np.random.randint(500, 85000, n)
+        "Mileage": np.random.randint(500, 85000, n),
+        "Component_Age_Days": np.random.randint(30, 1000, n)
     })
     
-    # --- BASE TELEMETRY ---
+    # Add Latitude and Longitude with some random jitter for map scattering
+    df["Lat"] = df["Region"].map(lambda x: coords[x][0] + np.random.normal(0, 6))
+    df["Lon"] = df["Region"].map(lambda x: coords[x][1] + np.random.normal(0, 6))
+    
     df["Temp_Amb"] = np.random.uniform(-5, 25, n)
-    df["Heat_Current"] = np.random.normal(400, 30, n)     # X1 Feature
-    df["Charging_Rate"] = np.random.normal(50, 10, n)     # iX Feature
-    df["HV_Efficiency"] = np.random.normal(96, 2, n)      # iX Feature
-    df["Suspension_Pressure"] = np.random.normal(15, 0.5, n) # 5er Feature
-    df["Speed_Avg"] = np.random.normal(100, 20, n)        # 5er Feature
+    df["Heat_Current"] = np.random.normal(400, 30, n)
+    df["Charging_Rate"] = np.random.normal(50, 10, n)
+    df["HV_Efficiency"] = np.random.normal(96, 2, n)
+    df["Suspension_Pressure"] = np.random.normal(15, 0.5, n)
+    df["Speed_Avg"] = np.random.normal(100, 20, n)
     
     df["GWK_Status"] = False
-    df["Error_Code"] = "OK"
+    df["Error_Code"] = "OPERATIONAL"
 
-    # 1. BMW X1 (SENS_HEAT_RESIST_HIGH)
-    mask_x1 = df["Model"] == "BMW X1 (U11)"
-    idx_x1_gwk = df[mask_x1].sample(n=52).index
-    df.loc[idx_x1_gwk, "GWK_Status"] = True
-    df.loc[idx_x1_gwk, "Error_Code"] = "SENS_HEAT_RESIST_HIGH"
-    df.loc[idx_x1_gwk, "Temp_Amb"] = np.random.uniform(-6, 2, len(idx_x1_gwk))
-    df.loc[idx_x1_gwk, "Heat_Current"] = np.random.uniform(650, 900, len(idx_x1_gwk))
-    
-    possible_x1_silent = df[mask_x1 & (df["GWK_Status"] == False)]
-    idx_x1_silent = possible_x1_silent.sample(n=434).index
-    df.loc[idx_x1_silent, "Temp_Amb"] = np.random.uniform(-6, 2, len(idx_x1_silent))
-    df.loc[idx_x1_silent, "Heat_Current"] = np.random.uniform(620, 880, len(idx_x1_silent))
+    mask_alpha = df["Model"] == "Model Series Alpha (Compact)"
+    idx_alpha = df[mask_alpha].sample(n=486).index
+    df.loc[idx_alpha[:52], "GWK_Status"] = True
+    df.loc[idx_alpha[:52], "Error_Code"] = "ERR_THERM_RESIST"
+    df.loc[idx_alpha, "Temp_Amb"] = np.random.uniform(-8, 2, len(idx_alpha))
+    df.loc[idx_alpha, "Heat_Current"] = np.random.uniform(650, 950, len(idx_alpha))
+    df.loc[idx_alpha, "Component_Age_Days"] = np.random.uniform(700, 1000, len(idx_alpha))
 
-    # 2. BMW iX (HV_BATTERY_EFF_DROP)
-    mask_ix = df["Model"] == "BMW iX (I20)"
-    idx_ix_gwk = df[mask_ix].sample(n=67).index
-    df.loc[idx_ix_gwk, "GWK_Status"] = True
-    df.loc[idx_ix_gwk, "Error_Code"] = "HV_BATTERY_EFF_DROP"
-    df.loc[idx_ix_gwk, "Charging_Rate"] = np.random.uniform(120, 180, len(idx_ix_gwk))
-    df.loc[idx_ix_gwk, "HV_Efficiency"] = np.random.uniform(70, 82, len(idx_ix_gwk))
-    
-    possible_ix_silent = df[mask_ix & (df["GWK_Status"] == False)]
-    idx_ix_silent = possible_ix_silent.sample(n=322).index
-    df.loc[idx_ix_silent, "Charging_Rate"] = np.random.uniform(120, 180, len(idx_ix_silent))
-    df.loc[idx_ix_silent, "HV_Efficiency"] = np.random.uniform(72, 84, len(idx_ix_silent))
+    mask_beta = df["Model"] == "Model Series Beta (EV)"
+    idx_beta = df[mask_beta].sample(n=389).index
+    df.loc[idx_beta[:67], "GWK_Status"] = True
+    df.loc[idx_beta[:67], "Error_Code"] = "ERR_CELL_EFFICIENCY"
+    df.loc[idx_beta, "Charging_Rate"] = np.random.uniform(120, 180, len(idx_beta))
+    df.loc[idx_beta, "HV_Efficiency"] = np.random.uniform(70, 84, len(idx_beta))
+    df.loc[idx_beta, "Component_Age_Days"] = np.random.uniform(600, 1000, len(idx_beta))
 
-    # 3. BMW 5er (AIR_SUSPENSION_LEAK)
-    mask_5er = df["Model"] == "BMW 5er (G60)"
-    idx_5er_gwk = df[mask_5er].sample(n=24).index
-    df.loc[idx_5er_gwk, "GWK_Status"] = True
-    df.loc[idx_5er_gwk, "Error_Code"] = "AIR_SUSPENSION_LEAK"
-    df.loc[idx_5er_gwk, "Speed_Avg"] = np.random.uniform(160, 220, len(idx_5er_gwk))
-    df.loc[idx_5er_gwk, "Suspension_Pressure"] = np.random.uniform(8, 11, len(idx_5er_gwk))
-    
-    possible_5er_silent = df[mask_5er & (df["GWK_Status"] == False)]
-    idx_5er_silent = possible_5er_silent.sample(n=390).index
-    df.loc[idx_5er_silent, "Speed_Avg"] = np.random.uniform(160, 220, len(idx_5er_silent))
-    df.loc[idx_5er_silent, "Suspension_Pressure"] = np.random.uniform(8.5, 11.5, len(idx_5er_silent))
+    mask_gamma = df["Model"] == "Model Series Gamma (Sedan)"
+    idx_gamma = df[mask_gamma].sample(n=414).index
+    df.loc[idx_gamma[:24], "GWK_Status"] = True
+    df.loc[idx_gamma[:24], "Error_Code"] = "ERR_PNEUMATIC_LEAK"
+    df.loc[idx_gamma, "Speed_Avg"] = np.random.uniform(160, 220, len(idx_gamma))
+    df.loc[idx_gamma, "Suspension_Pressure"] = np.random.uniform(8, 11.5, len(idx_gamma))
+    df.loc[idx_gamma, "Component_Age_Days"] = np.random.uniform(500, 1000, len(idx_gamma))
 
     return df
 
 data = get_fleet_data()
 
 # -----------------------------------------------------------------------------
-# 3. SIDEBAR
+# MAIN NAVIGATION & UI LOGIC
 # -----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("## 🔵 Cognizant Mobility")
-    st.caption("Proactive Insight Hub v2.5.1")
+    st.caption("Predictive Intelligence Hub v3.0 | 🔴 LIVE")
     st.markdown("---")
     
-    with st.expander("👤 Session Info", expanded=True):
-        st.write("**Team Lead AI:** Maya Schwaninger")
-        st.write("**Data Analyst:** Yasin Celik")
-        st.write("**Client:** EF-611")
-        st.caption("Date: 05.03.2026")
-
+    with st.expander("👤 Expert Team & Session", expanded=True):
+        st.write("👨‍💻 **Head of Data Analytics & Data Engineering:** Heiko Waibel")
+        st.write("📊 **Data Analyst:** Yasin Celik")
+        st.write("🏢 **Client:** Global OEM Demo")
+        st.caption(f"Date: {time.strftime('%Y-%m-%d')}")
+        
     st.markdown("---")
-    st.success("🟢 MDR API: **Online**")
-    st.metric("Latency", "24ms", "-2ms", delta_color="inverse")
-    st.info("ℹ️ **Live Connection**\nConnection to Data Lake (Fasta) active. Data refresh every 30s.")
+    st.metric("Lakehouse Latency", "12ms", "-1.2ms", delta_color="inverse")
+    st.progress(1.0, text="Data Stream Active")
 
-# -----------------------------------------------------------------------------
-# 4. HEADER & NAVIGATION
-# -----------------------------------------------------------------------------
 curr_step = st.session_state['step']
 step_meta = steps[curr_step]
 
-col_nav1, col_nav2, col_nav3 = st.columns([1, 4, 1])
-
-with col_nav1:
-    if curr_step > 0:
-        if st.button("⬅️ Back", use_container_width=True):
+# Sticky Navigation Container
+nav_container = st.container()
+with nav_container:
+    c1, c2, c3 = st.columns([1, 4, 1])
+    with c1:
+        st.markdown('<div class="sticky-nav-marker"></div>', unsafe_allow_html=True)
+        if curr_step > 0 and st.button("⬅️ PREVIOUS", use_container_width=True):
             st.session_state['step'] -= 1
             st.rerun()
+    with c2:
+        st.progress((curr_step + 1) / len(steps))
+        st.markdown(f"<h2 style='text-align: center; margin-top:-10px;'>{step_meta['title']}</h2>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center; color: #00f2fe;'>{step_meta['desc']}</p>", unsafe_allow_html=True)
+    with c3:
+        if curr_step < len(steps) - 1:
+            if st.button("NEXT ➡️", use_container_width=True):
+                st.session_state['step'] += 1
+                st.rerun()
+        else:
+            if st.button("🔄 RESTART", use_container_width=True):
+                st.session_state['step'] = 0
+                reset_analysis_state()
+                st.rerun()
 
-with col_nav2:
-    prog_val = (curr_step + 1) / len(steps)
-    st.progress(prog_val)
-    st.markdown(f"<h2 style='text-align: center; margin-top: -10px;'>{step_meta['title']}</h2>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; color: #888;'>{step_meta['desc']}</p>", unsafe_allow_html=True)
-
-with col_nav3:
-    if curr_step < len(steps) - 1:
-        if st.button("Next ➡️", use_container_width=True):
-            st.session_state['step'] += 1
-            st.rerun()
-    else:
-        # LOGIC FOR RESET
-        if st.button("🔄 Reset", use_container_width=True):
-            st.session_state['step'] = 0
-            reset_analysis_state() # Clear all data
-            st.rerun()
-
-st.divider()
+st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 5. MAIN CONTENT VIEWS
+# VIEWS
 # -----------------------------------------------------------------------------
 
-# === STEP 0: GLOBAL FLEET VIEW ===
+# --- STEP 0: COMMAND CENTER ---
 if curr_step == 0:
     k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Connected Vehicles", "35,000", "+124 (24h)")
-    k2.metric("Data Ingest", "1.8 GB/s", "Stable")
+    k1.metric("Monitored Assets", "35,000", "Global Fleet")
+    k2.metric("Data Ingestion Rate", "2.4 TB/day", "Streaming")
+    k3.metric("Critical Alerts", f"{len(data[data['GWK_Status']==True])}", "+3 in last hour", delta_color="inverse")
+    k4.metric("System Health", "99.98%", "Optimal")
     
-    gwk_count = len(data[data["GWK_Status"]==True])
-    k3.metric("Total Active Cases", f"{gwk_count}", "+5 Cases", delta_color="inverse")
-    k4.metric("Fleet Health", "99.6%", "-0.2%")
-    
-    st.markdown("### 📊 Regional Asset Allocation")
-    
-    c_chart, c_conf = st.columns([3, 1])
+    st.markdown("<br>", unsafe_allow_html=True)
+    c_chart, c_conf = st.columns([7, 3])
     
     with c_chart:
-        df_agg = data.groupby(["Region", "Model"]).size().reset_index(name="Count")
-        fig_bar = px.bar(
-            df_agg, x="Region", y="Count", color="Model", barmode="group",
-            color_discrete_sequence=["#0672CB", "#00C896", "#FF4B4B"],
-            title="Vehicle Density by Region & Model"
-        )
-        fig_bar.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-            xaxis_title="", yaxis_title="Vehicles", font=dict(color="white"),
-            margin=dict(t=40, l=0, r=0, b=0), height=450
-        )
-        st.plotly_chart(fig_bar, use_container_width=True)
+        with st.popover("ℹ️ Info: Asset Distribution & Global Tracking"):
+            st.markdown("**Manager Summary:** This view provides a real-time pulse of our entire connected fleet. We can instantly switch between the geographic dispersion (Global Map) to trace environmental factors, and the quantitative distribution (Bar Chart) to monitor volume across asset series.")
+            
+        tab_map, tab_bar = st.tabs(["🌍 Global Fleet Map", "📊 Region Distribution"])
+        
+        with tab_map:
+            # Map with 2000 sampled data points to keep it highly performant
+            df_map = data.sample(2000, random_state=42)
+            fig_map = px.scatter_geo(
+                df_map, lat="Lat", lon="Lon", color="Model",
+                color_discrete_sequence=["#00f2fe", "#4facfe", "#00C896"],
+                hover_name="VIN", hover_data={"Lat":False, "Lon":False, "Region":True},
+                template="plotly_dark", projection="natural earth"
+            )
+            fig_map.update_geos(
+                showcountries=True, countrycolor="rgba(255,255,255,0.1)",
+                showland=True, landcolor="#0b0f19",
+                showocean=True, oceancolor="#1a1f2e",
+                bgcolor="rgba(0,0,0,0)"
+            )
+            fig_map.update_layout(margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=400)
+            st.plotly_chart(fig_map, use_container_width=True)
+            
+        with tab_bar:
+            df_agg = data.groupby(["Region", "Model"]).size().reset_index(name="Assets")
+            fig = px.bar(df_agg, x="Region", y="Assets", color="Model", 
+                         color_discrete_sequence=["#00f2fe", "#4facfe", "#00C896"],
+                         template="plotly_dark")
+            fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", 
+                              margin=dict(t=20, l=0, r=0, b=0), height=400)
+            st.plotly_chart(fig, use_container_width=True)
         
     with c_conf:
-        st.info("💡 **Insight Detector**")
-        st.markdown("The system detects anomalies in telemetry data.")
-        st.markdown("**Please select focus group:**")
+        st.markdown("#### 🎯 Active Focus Area")
+        st.markdown("Select an asset cluster to isolate anomalies.")
         
-        # LOGIC FOR AUTO-RESET ON MODEL CHANGE
-        previous_model = st.session_state.get('model', "BMW X1 (U11)")
-        sel_model = st.radio("Model Series:", ["BMW X1 (U11)", "BMW iX (I20)", "BMW 5er (G60)"])
+        prev_model = st.session_state['model']
+        sel_model = st.selectbox("Asset Series:", ["Model Series Alpha (Compact)", "Model Series Beta (EV)", "Model Series Gamma (Sedan)"])
         
-        # If model changes -> RESET ALL
-        if sel_model != previous_model:
+        if sel_model != prev_model:
             st.session_state['model'] = sel_model
             reset_analysis_state()
             st.rerun()
-        
-        st.markdown("---")
-        if "X1" in sel_model:
-            st.warning(f"⚠️ **Status: Warning**\nSignificant accumulation of heating resistance signals.")
-        elif "iX" in sel_model:
-            st.warning(f"⚠️ **Status: Warning**\nCharging efficiency anomalies detected during HPC.")
-        elif "5er" in sel_model:
-            st.warning(f"⚠️ **Status: Warning**\nAir suspension pressure loss detected at Vmax.")
             
-        st.markdown("Recommended Action:\n`-> Analyze Intake Data`")
+        st.markdown("---")
+        st.error("⚠️ **ANOMALY DETECTED**\n\nStatistical deviation in telemetry streams found. Suggest immediate drill-down.")
 
-# === STEP 1: INTAKE ANALYSIS ===
+# --- STEP 1: FORENSICS (Upgraded KPIs) ---
 elif curr_step == 1:
     sel_model = st.session_state['model']
-    st.markdown(f"### 🔍 Detailed Intake Analysis: **{sel_model}**")
-    
     df_m = data[data["Model"] == sel_model]
     df_gwk = df_m[df_m["GWK_Status"] == True]
     
-    col_left, col_right = st.columns([2, 1])
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Confirmed Warranty Claims", f"{len(df_gwk)} Assets", "Reported to Service Centers", delta_color="off")
     
-    with col_left:
-        st.markdown(f"#### Reported Cases ({len(df_gwk)} Total)")
-        
-        cols_to_show = ["VIN", "Prod_Date", "Mileage", "Error_Code"]
-        if "X1" in sel_model:
-            cols_to_show.append("Heat_Current")
-        elif "iX" in sel_model:
-            cols_to_show.append("HV_Efficiency")
-        elif "5er" in sel_model:
-            cols_to_show.append("Suspension_Pressure")
-            
+    top_region = df_gwk["Region"].mode()[0] if not df_gwk.empty else "N/A"
+    m2.metric("Primary Failure Cluster", top_region, "Geospatial Analysis", delta_color="off")
+    
+    est_cost = len(df_gwk) * 2500
+    m3.metric("Estimated Direct Costs", f"€ {est_cost:,.0f}", "Parts & Labor", delta_color="inverse")
+    
+    st.markdown("---")
+    
+    col1, col2 = st.columns([6, 4])
+    with col1:
+        st.markdown("#### Detailed Warranty Registry")
+        cols = ["VIN", "Prod_Date", "Mileage", "Error_Code"]
         st.dataframe(
-            df_gwk[cols_to_show].head(15),
-            use_container_width=True,
-            hide_index=True
-        )
-
-    with col_right:
-        st.markdown("#### Error Clusters")
-        fig_pie = px.pie(df_gwk, names="Error_Code", hole=0.6, color_discrete_sequence=px.colors.sequential.RdBu)
-        fig_pie.update_layout(showlegend=False, margin=dict(t=30, b=0, l=0, r=0), height=300)
-        st.plotly_chart(fig_pie, use_container_width=True)
-        
-        top_error = df_gwk["Error_Code"].mode()[0] if len(df_gwk) > 0 else "N/A"
-        
-        if "X1" in sel_model:
-             st.error(f"**Dominant Error:**\n{top_error}\n\nCritical accumulation at low temperatures.")
-        elif "iX" in sel_model:
-             st.error(f"**Dominant Error:**\n{top_error}\n\nLoss of cell chemistry performance.")
-        elif "5er" in sel_model:
-             st.error(f"**Dominant Error:**\n{top_error}\n\nSafety-critical suspension issue.")
-
-# === STEP 2: AI PATTERN RECOGNITION ===
-elif curr_step == 2:
-    st.markdown("### 🧠 Deep Learning Correlation Engine")
-    
-    c_ctrl, c_vis = st.columns([1, 3])
-    
-    with c_ctrl:
-        st.markdown("#### AI Configuration")
-        st.markdown("Model: **IsolationForest v2.4**")
-        
-        if "X1" in st.session_state['model']:
-             st.markdown("Target: `Thermal Resistance`")
-        elif "iX" in st.session_state['model']:
-             st.markdown("Target: `Charging Efficiency`")
-        elif "5er" in st.session_state['model']:
-             st.markdown("Target: `Pneumatic Integrity`")
-        
-        st.markdown("---")
-        
-        if st.button("▶️ Start Pattern Matching", type="primary"):
-            st.toast("Pattern successfully isolated!", icon="✅")
-            st.session_state['ai_done'] = True
-        
-        if st.session_state.get('ai_done'):
-             st.success("Pattern ID: #A-9942\nConfidence: 99.4%")
-
-    with c_vis:
-        if st.session_state.get('ai_done'):
-            st.markdown("#### 🎯 Result: Multi-dimensional Correlation")
-            
-            df_viz = data[data["Model"] == st.session_state['model']].sample(5000)
-            
-            # --- SCENARIO 1: BMW X1 ---
-            if "X1" in st.session_state['model']:
-                fig = px.scatter(
-                    df_viz, x="Temp_Amb", y="Heat_Current",
-                    color="GWK_Status", 
-                    color_discrete_map={False: "rgba(255,255,255,0.2)", True: "#FF4B4B"}, 
-                    labels={"Temp_Amb": "Ambient Temp (°C)", "Heat_Current": "Sensor Current (mA)"},
-                    title="Anomaly X1: Current Draw at Low Temp"
-                )
-                fig.add_shape(type="rect", x0=-8, y0=600, x1=3, y1=950, line=dict(color="#FFD700", width=3, dash="dot"))
-                insight_text = "**AI Insight:** Control unit overload (>600mA) at temperatures below 3°C. **Vehicles without error messages (white dots) are also in the danger zone!**"
-                insight_type = st.error
-
-            # --- SCENARIO 2: BMW iX ---
-            elif "iX" in st.session_state['model']:
-                fig = px.scatter(
-                    df_viz, x="Charging_Rate", y="HV_Efficiency",
-                    color="GWK_Status", 
-                    color_discrete_map={False: "rgba(255,255,255,0.2)", True: "#FF4B4B"},
-                    labels={"Charging_Rate": "Charging Power (kW)", "HV_Efficiency": "Battery Efficiency (%)"},
-                    title="Anomaly iX: Efficiency Drop at HPC"
-                )
-                fig.add_shape(type="rect", x0=110, y0=65, x1=190, y1=85, line=dict(color="#FFD700", width=3, dash="dot"))
-                insight_text = "**AI Insight:** Cell efficiency drops critically (<85%) at charging power above 120kW. Many vehicles show this pattern without having failed yet."
-                insight_type = st.error
-
-            # --- SCENARIO 3: BMW 5er ---
-            elif "5er" in st.session_state['model']:
-                fig = px.scatter(
-                    df_viz, x="Speed_Avg", y="Suspension_Pressure",
-                    color="GWK_Status", 
-                    color_discrete_map={False: "rgba(255,255,255,0.2)", True: "#FF4B4B"},
-                    labels={"Speed_Avg": "Speed (km/h)", "Suspension_Pressure": "Air Pressure (Bar)"},
-                    title="Anomaly 5 Series: Air Suspension Pressure Loss"
-                )
-                fig.add_shape(type="rect", x0=150, y0=7, x1=230, y1=12, line=dict(color="#FFD700", width=3, dash="dot"))
-                insight_text = "**AI Insight:** Pressure loss in bellows (<12 Bar) at speeds over 160 km/h. High predictive potential."
-                insight_type = st.error
-            
-            fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig, use_container_width=True)
-            insight_type(insight_text)
-        else:
-            st.info("Please start analysis...")
-            st.markdown("<div style='height:400px; border:1px dashed #444; border-radius:10px;'></div>", unsafe_allow_html=True)
-
-# === STEP 3: PREDICTIVE FLEET SCAN ===
-elif curr_step == 3:
-    st.markdown(f"### 🔮 Predictive Fleet Scan: {st.session_state['model']}")
-    st.markdown("Applying the learned pattern to the **entire** fleet (35,000 units).")
-    
-    if not st.session_state.get('scan_done'):
-        if st.button("🚀 START SCAN", type="primary", use_container_width=True):
-            my_bar = st.progress(0)
-            for percent_complete in range(100):
-                time.sleep(0.01)
-                my_bar.progress(percent_complete + 1)
-            st.session_state['scan_done'] = True
-            st.rerun()
-    
-    else:
-        df_scan = data[data["Model"] == st.session_state['model']]
-        
-        # Filter Logic for Risk Candidates
-        if "X1" in st.session_state['model']:
-            risk_candidates = df_scan[
-                (df_scan["Temp_Amb"] < 3) & 
-                (df_scan["Heat_Current"] > 600) & 
-                (df_scan["GWK_Status"] == False)
-            ].copy()
-        elif "iX" in st.session_state['model']:
-            risk_candidates = df_scan[
-                (df_scan["Charging_Rate"] > 110) & 
-                (df_scan["HV_Efficiency"] < 85) & 
-                (df_scan["GWK_Status"] == False)
-            ].copy()
-        elif "5er" in st.session_state['model']:
-            risk_candidates = df_scan[
-                (df_scan["Speed_Avg"] > 150) & 
-                (df_scan["Suspension_Pressure"] < 12) & 
-                (df_scan["GWK_Status"] == False)
-            ].copy()
-            
-        risk_candidates["Risk_Score"] = np.random.uniform(79.8, 99.9, len(risk_candidates))
-        risk_candidates = risk_candidates.sort_values("Risk_Score", ascending=False)
-        st.session_state['risk_pool'] = risk_candidates
-
-        st.markdown("#### ⚠️ High-Risk Candidates Identified")
-        
-        cols = ["VIN", "Risk_Score", "Mileage"]
-        if "X1" in st.session_state['model']: cols.append("Temp_Amb")
-        elif "iX" in st.session_state['model']: cols.append("Charging_Rate")
-        elif "5er" in st.session_state['model']: cols.append("Speed_Avg")
-            
-        st.dataframe(
-            risk_candidates[cols].head(20),
-            use_container_width=True,
+            df_gwk[cols].head(10),
             column_config={
-                "Risk_Score": st.column_config.ProgressColumn("Probability", format="%.1f%%", min_value=0, max_value=100)
+                "Mileage": st.column_config.NumberColumn("Mileage", format="%d mi"),
+                "Error_Code": st.column_config.TextColumn("Diagnostic Code")
             },
-            hide_index=True
+            use_container_width=True, hide_index=True
         )
+    with col2:
+        with st.popover("ℹ️ Info: Error Clusters"):
+            st.markdown("**Manager Summary:** The pie chart instantly shows which error code is the primary root cause for failures. This allows us to focus our AI on the most expensive and critical issue within the fleet.")
+            
+        st.markdown("#### Root Cause Distribution")
+        fig = px.pie(df_gwk, names="Error_Code", hole=0.7, color_discrete_sequence=["#ff0844", "#ffb199"])
+        fig.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0), 
+                          paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                          annotations=[dict(text='Critical', x=0.5, y=0.5, font_size=20, showarrow=False, font_color="white")])
+        st.plotly_chart(fig, use_container_width=True)
+
+# --- STEP 2: AI PATTERN RECOGNITION ---
+elif curr_step == 2:
+    st.markdown("### 🧠 Unsupervised Learning: Opening the Black Box")
+    st.write("We do not rely on simple thresholds. Our team implements highly tuned Isolation Forests to detect multidimensional outliers that traditional BI cannot see.")
     
-        c_down, c_3d = st.columns([1, 2])
+    if st.button("🚀 EXECUTE AI TRAINING RUN"):
+        # Loading bar to simulate complex processing for demos
+        my_bar = st.progress(0, text="Initializing Neural Network...")
+        time.sleep(0.5)
+        my_bar.progress(30, text="Injecting historical telemetry...")
+        time.sleep(0.5)
+        my_bar.progress(70, text="Calculating multi-dimensional loss function...")
+        time.sleep(0.5)
+        my_bar.progress(100, text="Pattern matching complete.")
+        time.sleep(0.2)
+        st.session_state['ai_done'] = True
+        st.rerun()
         
-        with c_down:
-            st.markdown("### Export & Actions")
-            st.write(f"Identified Vehicles: **{len(risk_candidates)}**")
-            st.metric("Predicted Hit Rate", f"{(len(risk_candidates)/len(df_scan)*100):.1f}%")
-            
-            st.download_button(
-                label="📥 Full Risk List (CSV)",
-                data=risk_candidates.to_csv(index=False),
-                file_name="predictive_maintenance_list.csv",
-                mime="text/csv"
+    if st.session_state.get('ai_done'):
+        st.success("✅ Model successfully trained. Pattern isolated with 99.4% confidence.")
+        
+        tab1, tab2 = st.tabs(["📊 Feature Space Projection", "🧮 Statistical Deep Dive & SHAP"])
+        
+        df_viz = data[data["Model"] == st.session_state['model']].sample(3000)
+        x_col, y_col = "Temp_Amb", "Heat_Current"
+        if "Beta" in st.session_state['model']: x_col, y_col = "Charging_Rate", "HV_Efficiency"
+        if "Gamma" in st.session_state['model']: x_col, y_col = "Speed_Avg", "Suspension_Pressure"
+        
+        with tab1:
+            with st.popover("ℹ️ Info: How the AI Learns (2D)"):
+                st.markdown("**Manager Summary:** Red dots represent failed machines. Gray dots represent healthy ones. Our AI finds the hidden assets that appear healthy according to standard data, but mathematically behave like failed ones (the dark dots in the red danger zone). These will be the next to fail.")
+                
+            fig = px.scatter(
+                df_viz, x=x_col, y=y_col, color="GWK_Status",
+                color_discrete_map={False: "#2b3240", True: "#ff0844"},
+                marginal_x="histogram", marginal_y="histogram",
+                title="2D Projection of the Anomaly Cluster"
             )
-            
-        with c_3d:
-            st.markdown("### 🧊 Multi-Dimensional Risk Cube")
-            plot_df = pd.concat([risk_candidates.head(300), df_scan.sample(800)])
-            plot_df["Status"] = plot_df.apply(lambda x: "High Risk" if x["VIN"] in risk_candidates["VIN"].values else "Normal", axis=1)
-            
-            x_ax, y_ax, z_ax = "Temp_Amb", "Heat_Current", "Mileage"
-            if "iX" in st.session_state['model']: x_ax, y_ax = "Charging_Rate", "HV_Efficiency"
-            if "5er" in st.session_state['model']: x_ax, y_ax = "Speed_Avg", "Suspension_Pressure"
+            fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=450)
+            fig.update_traces(marker=dict(size=8, opacity=0.8, line=dict(width=1, color='DarkSlateGrey')), selector=dict(mode='markers'))
+            st.plotly_chart(fig, use_container_width=True)
+            st.info("💡 **Insight:** The dark dots mixed in the red failure zone are 'silent failures' - assets mathematically identical to failures that haven't broken down *yet*.")
 
-            fig_3d = px.scatter_3d(
-                plot_df, x=x_ax, y=y_ax, z=z_ax,
-                color="Status", color_discrete_map={"High Risk": "#FF0000", "Normal": "#222222"},
-                opacity=0.7, title=f"Risk Cluster ({st.session_state['model']})"
-            )
-            fig_3d.update_layout(margin=dict(l=0, r=0, b=0, t=30), height=500, scene=dict(bgcolor="rgba(0,0,0,0)"), paper_bgcolor="rgba(0,0,0,0)", font=dict(color="white"))
-            st.plotly_chart(fig_3d, use_container_width=True)
+        with tab2:
+            c_math, c_shap = st.columns([1, 1])
+            with c_math:
+                st.markdown("#### Algorithmic Fundamentals")
+                st.write("We calculate the anomaly score $s(x, n)$ based on the expected path length $E(h(x))$ in the isolation trees:")
+                st.markdown(r"$$s(x, n) = 2^{-\frac{E(h(x))}{c(n)}}$$")
+                st.write("**Hyperparameters Configured:**")
+                st.code("""
+n_estimators = 150
+max_samples = 'auto'
+contamination = 0.012  # Estimated failure rate
+bootstrap = False
+                """, language="python")
 
-# === STEP 4: DEEP DIVE & ACTION ===
+            with c_shap:
+                with st.popover("ℹ️ Info: AI Transparency (SHAP)"):
+                    st.markdown("**Manager Summary:** This answers the question: 'Why did the AI make this decision?'. The model is not a black box. We make it completely transparent which sensor data (e.g., temperature) is the strongest driver of the failure risk.")
+                    
+                st.markdown("#### Feature Importance (SHAP)")
+                st.write("Which sensors drove the AI's decision to flag these assets?")
+                
+                features = [x_col, y_col, "Component_Age_Days", "Mileage", "Region_Code"]
+                importance = [0.45, 0.35, 0.15, 0.03, 0.02]
+                df_shap = pd.DataFrame({"Feature": features, "Impact": importance}).sort_values(by="Impact", ascending=True)
+                
+                fig_shap = px.bar(df_shap, x="Impact", y="Feature", orientation='h', color_discrete_sequence=["#00f2fe"])
+                fig_shap.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=0,r=0,t=0,b=0), height=250)
+                st.plotly_chart(fig_shap, use_container_width=True)
+
+# --- STEP 3: MEANINGFUL 3D PLOT ---
+elif curr_step == 3:
+    st.markdown("### 🌌 Multidimensional Risk Scaling")
+    st.write("Scaling the mathematical pattern to the entire fleet to identify the exact serial numbers at risk.")
+    
+    df_scan = data[data["Model"] == st.session_state['model']]
+    
+    x_c, y_c, z_c = "Temp_Amb", "Heat_Current", "Component_Age_Days"
+    if "Beta" in st.session_state['model']: x_c, y_c = "Charging_Rate", "HV_Efficiency"
+    if "Gamma" in st.session_state['model']: x_c, y_c = "Speed_Avg", "Suspension_Pressure"
+
+    if "Alpha" in st.session_state['model']:
+        risk_mask = (df_scan["Temp_Amb"] < 3) & (df_scan["Heat_Current"] > 600) & (df_scan["Component_Age_Days"] > 650)
+    elif "Beta" in st.session_state['model']:
+        risk_mask = (df_scan["Charging_Rate"] > 110) & (df_scan["HV_Efficiency"] < 85) & (df_scan["Component_Age_Days"] > 550)
+    elif "Gamma" in st.session_state['model']:
+        risk_mask = (df_scan["Speed_Avg"] > 150) & (df_scan["Suspension_Pressure"] < 12) & (df_scan["Component_Age_Days"] > 450)
+        
+    risk_candidates = df_scan[risk_mask & (df_scan["GWK_Status"] == False)].copy()
+    risk_candidates["AI_Risk_Score"] = np.random.uniform(85, 99.9, len(risk_candidates))
+    st.session_state['risk_pool'] = risk_candidates.sort_values("AI_Risk_Score", ascending=False)
+    
+    col_3d, col_list = st.columns([6, 4])
+    
+    with col_3d:
+        with st.popover("ℹ️ Info: Why Dimensions Matter (3D)"):
+            st.markdown("**Manager Summary:** Conventional dashboards usually look at data in only 2 dimensions. Here, you can see that it takes the 3rd dimension (e.g., component age) to cleanly separate the red failure cluster from the remaining healthy machines. This is the true power of our AI.")
+            
+        plot_df = pd.concat([risk_candidates, df_scan[~risk_mask].sample(1500)])
+        plot_df["Status"] = plot_df.apply(lambda x: "Imminent Risk" if x["VIN"] in risk_candidates["VIN"].values else "Healthy Core", axis=1)
+        
+        fig_3d = px.scatter_3d(
+            plot_df, x=x_c, y=y_c, z=z_c,
+            color="Status", 
+            color_discrete_map={"Imminent Risk": "#00f2fe", "Healthy Core": "rgba(255,255,255,0.1)"},
+            title="AI Decision Boundary (3D Feature Space)"
+        )
+        fig_3d.update_traces(marker=dict(size=5, line=dict(width=0)))
+        fig_3d.update_layout(
+            scene=dict(
+                xaxis=dict(backgroundcolor="rgba(0,0,0,0)", gridcolor="#333"),
+                yaxis=dict(backgroundcolor="rgba(0,0,0,0)", gridcolor="#333"),
+                zaxis=dict(backgroundcolor="rgba(0,0,0,0)", gridcolor="#333"),
+                bgcolor="rgba(0,0,0,0)"
+            ),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=0, r=0, b=0, t=40), height=500
+        )
+        st.plotly_chart(fig_3d, use_container_width=True)
+
+    with col_list:
+        st.markdown("#### 🎯 Hidden Risk Pool")
+        st.write(f"Isolated **{len(risk_candidates)}** assets showing identical multidimensional signatures to failed units.")
+        st.dataframe(
+            risk_candidates[["VIN", "AI_Risk_Score", z_c]].head(15),
+            column_config={
+                "AI_Risk_Score": st.column_config.ProgressColumn("Failure Probability", format="%.1f%%", min_value=0, max_value=100),
+                z_c: st.column_config.NumberColumn("Age (Days)")
+            },
+            hide_index=True, use_container_width=True
+        )
+
+# --- STEP 4: ASSET DEEP DIVE & API INTEGRATION ---
 elif curr_step == 4:
     if 'risk_pool' in st.session_state and not st.session_state['risk_pool'].empty:
-        risk_car = st.session_state['risk_pool'].iloc[0]
-        st.markdown(f"### 🛠️ Detail Diagnosis: {risk_car['VIN']}")
+        risk_asset = st.session_state['risk_pool'].iloc[0]
+        st.markdown(f"### 🔎 Architecture: From Insight to Action")
+        st.write("A model is useless if it doesn't trigger business processes. Here is how we bridge the gap between Data Science and Enterprise Architecture (ERP/SAP).")
         
-        col_car, col_action = st.columns([2, 1])
-        with col_car:
-            st.markdown(f"""
-            <div style="background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="margin:0; color:#0672CB;">{risk_car['Model']}</h2>
-                    <span style="background:#FF4B4B; padding:5px 10px; border-radius:4px; font-weight:bold; font-size:0.8em;">HIGH RISK</span>
+        # RESTORED HTML DATA BLOCK
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin:0; color:#0672CB;">{risk_asset['Model']} - {risk_asset['VIN']}</h2>
+                <span style="background:#FF4B4B; padding:5px 10px; border-radius:4px; font-weight:bold; font-size:0.8em; color:white;">HIGH RISK</span>
+            </div>
+            <hr style="border-color: #444;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div>
+                    <span style="color:#888; font-size:0.9em;">AI RISK SCORE</span><br>
+                    <span style="font-size:1.8em; font-weight:bold; color:#ffcc00;">{risk_asset['AI_Risk_Score']:.1f}%</span>
                 </div>
-                <hr style="border-color: #444;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                    <div>
-                        <span style="color:#888; font-size:0.9em;">RISK SCORE</span><br>
-                        <span style="font-size:1.8em; font-weight:bold; color:#ffcc00;">{risk_car['Risk_Score']:.1f}%</span>
-                    </div>
-                    <div>
-                        <span style="color:#888; font-size:0.9em;">MILEAGE</span><br>
-                        <span style="font-size:1.4em; font-weight:bold; color:#fff;">{risk_car['Mileage']:,} km</span>
-                    </div>
-                    <div>
-                        <span style="color:#888; font-size:0.9em;">STATUS</span><br>
-                        <span style="font-size:1.4em; font-weight:bold; color:#00C896;">Connected</span>
-                    </div>
+                <div>
+                    <span style="color:#888; font-size:0.9em;">MILEAGE / USAGE</span><br>
+                    <span style="font-size:1.4em; font-weight:bold; color:#fff;">{risk_asset['Mileage']:,} units</span>
+                </div>
+                <div>
+                    <span style="color:#888; font-size:0.9em;">STATUS</span><br>
+                    <span style="font-size:1.4em; font-weight:bold; color:#00C896;">Connected</span>
                 </div>
             </div>
-            """, unsafe_allow_html=True)
-            
-            # Live Telemetrie Dummy
-            chart_data = pd.DataFrame({"Time": pd.date_range("now", periods=60, freq="1s"), "Value": np.random.normal(100, 10, 60)})
-            fig_live = px.area(chart_data, x="Time", y="Value")
-            fig_live.update_traces(line_color="#FF4B4B", fillcolor="rgba(255, 75, 75, 0.2)")
-            fig_live.update_layout(yaxis_title="Sensor Signal", height=250, showlegend=False, margin=dict(l=0,r=0,t=0,b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig_live, use_container_width=True)
+        </div>
+        """, unsafe_allow_html=True)
 
-        with col_action:
-            st.info("System Recommendation:")
-            st.markdown("**Proactive Maintenance**")
-            st.text_area("Technician Note:", "Automated Ticket generated due to predictive score > 80%.")
-            if st.button("📨 Execute Work Order", type="primary"):
-                st.success(f"Ticket #WO-{risk_car['VIN'][-4:]} sent to SAP.")
-                st.balloons()
-
-# === STEP 5: MANAGEMENT SUMMARY ===
-elif curr_step == 5:
-    st.markdown("### 📈 Executive Summary")
-    
-    n_hits = len(st.session_state.get('risk_pool', []))
-    # Fallback for Demo if user jumps here directly
-    if n_hits == 0:
-        if "X1" in st.session_state['model']: n_hits = 434
-        elif "iX" in st.session_state['model']: n_hits = 322
-        elif "5er" in st.session_state['model']: n_hits = 390
-    
-    cost_per_case = 1250 
-    total_saving = n_hits * cost_per_case
-    
-    col_sum1, col_sum2 = st.columns([1, 1])
-    with col_sum1:
-        st.markdown("#### Business Impact")
-        st.metric("Prevented Failures", f"{n_hits}", f"Model: {st.session_state['model']}")
-        st.metric("Cost Avoidance", f"{total_saving:,.0f} €", "Warranty & Goodwill")
-        st.metric("Time Invested", "4 Minutes", "vs. 3 Weeks (Manual)")
-
-    # NEW STEP-BY-STEP SUMMARY (VISUAL)
-    with col_sum2:
-        st.markdown("#### Process Journey Review")
+        c_radar, c_action = st.columns([1, 1])
         
-        s1, s2, s3, s4 = st.columns(4)
-        with s1:
-            st.success("1. Ingest")
-            st.caption("Live Telemetry")
-            st.markdown("⬇️")
-        with s2:
-            st.success("2. AI")
-            st.caption("Pattern Match")
-            st.markdown("⬇️")
-        with s3:
-            st.success("3. Scan")
-            st.caption("Fleet Prediction")
-            st.markdown("⬇️")
-        with s4:
-            st.success("4. Action")
-            st.caption("SAP Ticket")
-            st.markdown("✅")
+        with c_radar:
+            with st.popover("ℹ️ Info: Profile Comparison (Radar)"):
+                st.markdown("**Manager Summary:** This chart directly compares the flagged asset with the fleet average (gray area). Technicians can instantly identify critical deviations by looking at the red spikes. This translates abstract AI math into a clear mechanical diagnosis.")
+                
+            categories = ['Temperature Load', 'Current Draw', 'Component Age', 'Vibration', 'Software Errors']
+            fig_radar = go.Figure()
             
-        st.info("The system successfully isolated the anomaly, scaled it to the fleet, and initiated measures.")
+            # UPDATED COLORS FOR BETTER READABILITY
+            # Fleet Average (Dezent Grau/Weiß)
+            fig_radar.add_trace(go.Scatterpolar(
+                r=[40, 40, 50, 30, 20], theta=categories, fill='toself', 
+                name='Fleet Average', line_color='rgba(255,255,255,0.5)', fillcolor='rgba(255,255,255,0.1)'
+            ))
+            # Target Asset (Gefahren-Rot)
+            fig_radar.add_trace(go.Scatterpolar(
+                r=[85, 95, 90, 35, 25], theta=categories, fill='toself', 
+                name=f'Asset {risk_asset["VIN"]}', line_color='#FF4B4B', fillcolor='rgba(255, 75, 75, 0.4)'
+            ))
+            
+            fig_radar.update_layout(polar=dict(radialaxis=dict(visible=False, range=[0, 100]), bgcolor="rgba(0,0,0,0)"), showlegend=True, template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", height=350, margin=dict(t=30, b=30))
+            st.plotly_chart(fig_radar, use_container_width=True)
+
+        with c_action:
+            st.write(f"**Confidence Verification:** Anomalies detected across {3} vector points.")
+            
+            if st.button("⚡ EXECUTE SAP WORK ORDER API"):
+                payload = {
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "asset_id": risk_asset['VIN'],
+                    "action": "CREATE_WORK_ORDER",
+                    "priority": "HIGH",
+                    "reason_code": "AI_PREDICTIVE_MAINTENANCE",
+                    "confidence": round(risk_asset['AI_Risk_Score'], 2),
+                    "target_erp": "SAP S/4HANA (Module PM)"
+                }
+                
+                with st.spinner("Establishing secure connection to ERP Gateway..."):
+                    time.sleep(1)
+                
+                st.session_state['terminal_log'] = f"> POST /api/v1/erp/workorders HTTP/1.1\n> Host: erp-gateway.enterprise.local\n> Authorization: Bearer ***\n\n{json.dumps(payload, indent=2)}\n\n< HTTP/1.1 201 Created\n< {{\"status\": \"success\", \"ticket_id\": \"WO-99842A\"}}"
+                st.success("API Call successful. Work order created in backend.")
+            
+            if st.session_state['terminal_log']:
+                st.markdown("<div class='terminal-output'>" + st.session_state['terminal_log'] + "</div>", unsafe_allow_html=True)
+
+# --- STEP 5: ROI SUMMARY (With Interactive Calculator) ---
+elif curr_step == 5:
+    st.markdown("### 💎 Value Realization & ROI Calculator")
+    
+    n_hits = len(st.session_state.get('risk_pool', [0]*350))
+    
+    st.markdown("#### Interactive Business Case")
+    st.write("Adjust the parameters below to see the immediate impact of proactively replacing components versus reacting to catastrophic failures.")
+    
+    # NEW: Interactive ROI Slider
+    avg_cost = st.slider("Estimated Average Cost per Failure (€)", min_value=1000, max_value=15000, value=2500, step=500)
+    saved = n_hits * avg_cost
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    c_m1, c_m2, c_m3 = st.columns(3)
+    c_m1.metric("Assets Secured", f"{n_hits:,}", "+100% Proactive")
+    c_m2.metric("Projected Cost Avoidance", f"€ {saved:,.0f}", "Prevented Warranty Costs")
+    c_m3.metric("Time to Insight", "Automated", "-99% vs Manual Analytics")
+    
+    st.markdown("---")
+    st.markdown("#### The Cognizant Advantage")
+    st.write("We have just walked through the entire lifecycle of a data analytics project: **From data ingestion to complex machine learning modeling (Isolation Forest & SHAP), all the way to direct automation in enterprise systems (SAP API).** This is the difference between a pretty dashboard and a real business solution.")
 
 # -----------------------------------------------------------------------------
 # 6. FOOTER
 # -----------------------------------------------------------------------------
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
-st.caption("© 2026 Cognizant Mobility GmbH | Confidential Demo | Connected Drive Analytics")
+st.caption(f"© {time.strftime('%Y')} Cognizant Mobility GmbH | Confidential Demo | Connected Fleet Analytics")
